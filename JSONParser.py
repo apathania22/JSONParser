@@ -11,7 +11,7 @@ import shutil
 
 
 def time_convert():
-    df_csv = pd.read_csv('lakeside_upstream_TF.csv')
+    df_csv = pd.read_csv('North Shore.csv')
     df = pd.DataFrame(df_csv)
     reader = csv.reader(df_csv)
     val0 = df.iloc[6:, 0]
@@ -88,21 +88,28 @@ def uniTimeValName(param, filename1):
 
 
 def JoinTimeValue(param, filename1,filename):
-    with open(param) as f1, open(filename1) as f2:
+    with open(param) as f1:
         first_list = json.load(f1)
+    with open(filename1) as f2:
         second_list = json.load(f2)
-        for i, v in enumerate(second_list):
-            first_list[i].update(v)
+
+    for i, v in enumerate(second_list):
+        first_list[i].update(v)
+
     with open(filename, "w")as f:
         f.write(json.dumps(first_list, indent=4))
 
 
 def formatter(file1):
-    with open(file1, 'r') as f, open('Files/Out.csv', 'w') as f_out:
-        for line in f:
-                 cols = line.split(',', 38)
-                 if len(cols) >= 38:
-                     f_out.write( cols[0].strip() + ',' + cols[2].strip() + ',' + cols[3].strip() + "\n")
+    f_out = open('Files/Out.csv', 'w')
+    f = open(file1, 'r')
+
+    for line in f:
+             cols = line.split(',', 38)
+             if len(cols) >= 38:
+                 f_out.write( cols[0].strip() + ',' + cols[2].strip() + ',' + cols[3].strip() + "\n")
+    f_out.close()
+    f.close()
 
 
 '''ef siteNameUpdate(param):
@@ -128,8 +135,9 @@ def update_CSV(p):
                 wtr.writerow( (r[1], r[2], r[3], r[4]) )
 
 def dataJoin(fileList, i):
-        content = open(os.path.join('File/' + fileList[i]), 'r')
-        return json.load(content)
+    with open(os.path.join('File/' + fileList[i]), 'r') as fs:
+        content = json.load(fs)
+    return content
 
 
 def joinFinal(infile1, file):
@@ -168,13 +176,13 @@ if __name__ == '__main__':
     time_convert()
     file_list = os.listdir(r"File")
 
-    a = izip(*csv.reader(open("lakeside_upstream_TF.csv", "r")))
+    a = izip(*csv.reader(open("North Shore.csv", "r")))
     csv.writer(open("Files/ColtoRow.csv", "w")).writerows(a)
     formatter("Files/ColtoRow.csv")
    #siteNameUpdate("Files/Out.csv")
     add_DeviceName("Files/Out.csv")
     update_CSV("Files/Out.csv")
     joinFinal("Files/Out1.csv", file_list)
-    shutil.rmtree("Files")
-    shutil.rmtree("File")
+    # shutil.rmtree("Files")
+    # shutil.rmtree("File")
 
