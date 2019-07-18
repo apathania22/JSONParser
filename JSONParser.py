@@ -7,11 +7,10 @@ from jinja2._compat import izip
 import tempfile
 import itertools as IT
 import os
-import shutil
 
 
 def time_convert():
-    df_csv = pd.read_csv('North Shore.csv')
+    df_csv = pd.read_csv('lakeside_upstream_TF.csv')
     df = pd.DataFrame(df_csv)
     reader = csv.reader(df_csv)
     val0 = df.iloc[6:, 0]
@@ -176,13 +175,12 @@ if __name__ == '__main__':
     time_convert()
     file_list = os.listdir(r"File")
 
-    a = izip(*csv.reader(open("North Shore.csv", "r")))
+    a = izip(*csv.reader(open("lakeside_upstream_TF.csv", "r")))
     csv.writer(open("Files/ColtoRow.csv", "w")).writerows(a)
     formatter("Files/ColtoRow.csv")
    #siteNameUpdate("Files/Out.csv")
     add_DeviceName("Files/Out.csv")
     update_CSV("Files/Out.csv")
     joinFinal("Files/Out1.csv", file_list)
-    # shutil.rmtree("Files")
-    # shutil.rmtree("File")
+
 
