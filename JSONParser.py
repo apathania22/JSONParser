@@ -8,9 +8,9 @@ import tempfile
 import itertools as IT
 import os
 
-
+#Converts time to Epoch time
 def time_convert():
-    df_csv = pd.read_csv('lakeside_upstream_TF.csv')
+    df_csv = pd.read_csv('FMSb01.csv')
     df = pd.DataFrame(df_csv)
     reader = csv.reader(df_csv)
     val0 = df.iloc[6:, 0]
@@ -36,7 +36,7 @@ def time_convert():
             v.append(float(i))
         uniquify(v)
 
-
+#Puts all the Value files into the Files directory
 def uniquify(v):
     def uniquify(path, sep=''):
         def name_sequence():
@@ -57,13 +57,13 @@ def uniquify(v):
         makeFile(filename,v)
     (uniquify('Files/Value.json'))
 
-
+#Puts the Time File into the File Directory
 def makeFile(filename,v):
     with open(filename, "w")as t2:
         t2.write(json.dumps([{"value": [val1]} for val1 in v]))
     uniTimeValName("Files/Time.json", filename)
 
-
+#Puts all the merged Time and Value files(TimeValue.json) into the Files directory
 def uniTimeValName(param, filename1):
     def uniquify(path, sep=''):
         def name_sequence():
@@ -85,7 +85,7 @@ def uniTimeValName(param, filename1):
 
     (uniquify('File/TimeValue.json'))
 
-
+#Merges the Time and Value files
 def JoinTimeValue(param, filename1,filename):
     with open(param) as f1:
         first_list = json.load(f1)
@@ -98,7 +98,7 @@ def JoinTimeValue(param, filename1,filename):
     with open(filename, "w")as f:
         f.write(json.dumps(first_list, indent=4))
 
-
+#Fetches the header data
 def formatter(file1):
     f_out = open('Files/Out.csv', 'w')
     f = open(file1, 'r')
@@ -110,21 +110,13 @@ def formatter(file1):
     f_out.close()
     f.close()
 
-
-'''ef siteNameUpdate(param):
-    r = csv.reader(open(param))
-    lines = list(r)
-    lines[4][0] = 'North Shore'
-    writer = csv.writer(open('Files/Out.csv', 'w'))
-    writer.writerows(lines)'''
-
-
+#Adds Device Name to the header
 def add_DeviceName(param):
     df = pd.read_csv(param)
     df['device'] = "2160 LaserFlow Module"
     df.to_csv('Files/Out.csv')
 
-
+#Removes the colums from the Headers
 def update_CSV(p):
     with open(p,"r") as source:
         rdr= csv.reader( source )
@@ -133,12 +125,13 @@ def update_CSV(p):
             for r in rdr:
                 wtr.writerow( (r[1], r[2], r[3], r[4]) )
 
+
 def dataJoin(fileList, i):
     with open(os.path.join('File/' + fileList[i]), 'r') as fs:
         content = json.load(fs)
     return content
 
-
+#Finally merges all the data and headers according to respective units
 def joinFinal(infile1, file):
     fileList = file
 
@@ -164,7 +157,7 @@ def joinFinal(infile1, file):
         })
         i += 1
 
-    with open("Result.json", "w")as w:
+    with open("Result3.json", "w")as w:
         w.write(json.dumps(groups[:20], indent=4))
 
 
@@ -175,12 +168,9 @@ if __name__ == '__main__':
     time_convert()
     file_list = os.listdir(r"File")
 
-    a = izip(*csv.reader(open("lakeside_upstream_TF.csv", "r")))
+    a = izip(*csv.reader(open("FMSb01.csv", "r")))
     csv.writer(open("Files/ColtoRow.csv", "w")).writerows(a)
     formatter("Files/ColtoRow.csv")
-   #siteNameUpdate("Files/Out.csv")
     add_DeviceName("Files/Out.csv")
     update_CSV("Files/Out.csv")
     joinFinal("Files/Out1.csv", file_list)
-
-
