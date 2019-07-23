@@ -7,10 +7,11 @@ from jinja2._compat import izip
 import tempfile
 import itertools as IT
 import os
+from math import isnan
 
 #Converts time to Epoch time
 def time_convert():
-    df_csv = pd.read_csv('FMSb01.csv')
+    df_csv = pd.read_csv('FMSb02.csv')
     df = pd.DataFrame(df_csv)
     reader = csv.reader(df_csv)
     val0 = df.iloc[6:, 0]
@@ -157,8 +158,23 @@ def joinFinal(infile1, file):
         })
         i += 1
 
-    with open("Result3.json", "w")as w:
+    with open("Files/Data.json", "w")as w:
         w.write(json.dumps(groups[:20], indent=4))
+
+
+def nanRemover(data):
+    with open(data, 'r') as j:
+        json_dict = json.loads(j.read())
+
+        for typeObj in json_dict:
+            resource_node = typeObj['resource']
+            resource_node['data'] = [
+                item for item in resource_node['data']
+                if len([val for val in item['value'] if isnan(val)]) == 0
+            ]
+
+    with open('Result.json', 'w') as r:
+        r.write(json.dumps(json_dict, indent=4))
 
 
 
@@ -168,9 +184,10 @@ if __name__ == '__main__':
     time_convert()
     file_list = os.listdir(r"File")
 
-    a = izip(*csv.reader(open("FMSb01.csv", "r")))
+    a = izip(*csv.reader(open("FMSb02.csv", "r")))
     csv.writer(open("Files/ColtoRow.csv", "w")).writerows(a)
     formatter("Files/ColtoRow.csv")
     add_DeviceName("Files/Out.csv")
     update_CSV("Files/Out.csv")
     joinFinal("Files/Out1.csv", file_list)
+    nanRemover("Files/Data.json")
