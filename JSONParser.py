@@ -11,7 +11,7 @@ from math import isnan
 
 #Converts time to Epoch time
 def time_convert():
-    df_csv = pd.read_csv('FMSb02.csv')
+    df_csv = pd.read_csv('lakeside_upstream_TF.csv')
     df = pd.DataFrame(df_csv)
     reader = csv.reader(df_csv)
     val0 = df.iloc[6:, 0]
@@ -88,13 +88,14 @@ def uniTimeValName(param, filename1):
 
 #Merges the Time and Value files
 def JoinTimeValue(param, filename1,filename):
-    with open(param) as f1:
+    with open(param) as f1, open(filename1) as f2:
         first_list = json.load(f1)
-    with open(filename1) as f2:
         second_list = json.load(f2)
+        quality = {"quality": [0]}
 
     for i, v in enumerate(second_list):
         first_list[i].update(v)
+        first_list[i].update(quality)
 
     with open(filename, "w")as f:
         f.write(json.dumps(first_list, indent=4))
@@ -161,7 +162,7 @@ def joinFinal(infile1, file):
     with open("Files/Data.json", "w")as w:
         w.write(json.dumps(groups[:20], indent=4))
 
-
+#Removes the NaN value objects from JSON
 def nanRemover(data):
     with open(data, 'r') as j:
         json_dict = json.loads(j.read())
@@ -173,7 +174,7 @@ def nanRemover(data):
                 if len([val for val in item['value'] if isnan(val)]) == 0
             ]
 
-    with open('Result.json', 'w') as r:
+    with open('Result5.json', 'w') as r:
         r.write(json.dumps(json_dict, indent=4))
 
 
@@ -184,7 +185,7 @@ if __name__ == '__main__':
     time_convert()
     file_list = os.listdir(r"File")
 
-    a = izip(*csv.reader(open("FMSb02.csv", "r")))
+    a = izip(*csv.reader(open("lakeside_upstream_TF.csv", "r")))
     csv.writer(open("Files/ColtoRow.csv", "w")).writerows(a)
     formatter("Files/ColtoRow.csv")
     add_DeviceName("Files/Out.csv")
